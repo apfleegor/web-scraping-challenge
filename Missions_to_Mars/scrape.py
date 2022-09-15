@@ -91,20 +91,22 @@ def mars_facts():
     # use pandas to scrape the site for tables
     table = pd.read_html(url)
 
-    # check to see what tables pandas got -- we want the second table
-    # print(table)
-
     # create a dataframe with the table
-    df = table[1]
+    df = table[0]
+
+    # fix the table for formatting
+    df = df.rename(columns=df.iloc[0])
+    df = df.rename(columns={"Mars - Earth Comparison": "Description"})
+    df = df.set_index("Description")
+
 
     # convert the dataframe into a html table string
-    html_table = df.to_html()
+    html_table = df.to_html(classes="table table=striped")
 
     # remove the \n
     html_table = html_table.replace('\n', '')
     
     return html_table
-
 
 # Mars Hemispheres
 

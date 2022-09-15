@@ -1,5 +1,5 @@
 # import dependencies
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect
 import scrape
 import pymongo
 
@@ -14,14 +14,19 @@ db = client.scrape_db
 # create root route
 @app.route("/")
 def home():
-    data = list(db.mars.find())
+    data = db.mars.find_one()
     
     return render_template("index.html", data=data)
 
 # create scrape route
 @app.route("/scrape")
 def scrape_func():
-    db.mars.insert_many(scrape())
+    scraped_data = scrape.scrape()
+
+    # db.mars.insert_one(scraped_data)
+    db.mars.update_one({}, {"$set": scraped_data}, upsert=True)
+
+    return redirect("/")
 
 
 if __name__ == "__main__":
